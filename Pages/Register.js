@@ -16,13 +16,25 @@ export class Register extends React.Component{
             Email:"",
             Username:"",
             Password:"",
+            StateRegister:[],
         }
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     static navigationOptions={
         header: null,
     }
 
+    handleSubmit = e =>{
+        e.preventDefault();
+        this.state.StateRegister.push({
+            name: this.state.Username,
+            email: this.state.Email,
+            password: this.state.Password
+        })
+        console.log(this.state.StateRegister);
+        
+    }
     render(){
         return(
         <ImageBackground style={style.backgroundImages} source={require('../src/assets/images/bg.png')}>
@@ -59,7 +71,7 @@ export class Register extends React.Component{
 
             </View>
             <View style={{marginTop:20, paddingRight:20, paddingLeft:20}}>
-            <Button style={{justifyContent:'center'}}>
+            <Button style={{justifyContent:'center'}} onPress={this.handleSubmit}>
                 <Text >Log In</Text>
             </Button>
             <View style={{flexDirection:'row', justifyContent:'center', marginTop:10}}>

@@ -2,19 +2,26 @@ import React from 'react'
 import { 
     Image,
     StyleSheet,
-    
+    Alert,
     View,
-    ImageBackground
+    ImageBackground,
+    AsyncStorage
  } from "react-native";
 import { Container, Text, Button, Label, Item, Form, Input } from "native-base";
-
-export class Login extends React.Component{
+import {connect} from 'react-redux'
+import {Userlogin} from '../Redux/Actions/Login'
+import  Loading  from '../src/component/Loading';
+class Login extends React.Component{
 
     constructor(props){
         super(props);
         this.state={
             Username:"",
             Password:"",
+            StateLogin:[],
+            stateFatch:false,
+            name:'',
+            login:[]
         }
     }
 
@@ -22,10 +29,71 @@ export class Login extends React.Component{
         header: null,
     }
 
+    handleSubmit = async(e) =>{
+        e.preventDefault();
+        this.setState({
+            stateFatch:true
+        })
+        this.state.StateLogin.push({
+            email: this.state.Username,
+            password: this.state.Password
+        })
+        console.log(this.state.StateLogin[0]);
+        this.props.dispatch(Userlogin(this.state.StateLogin[0]))
+        .then(result=>{
+            const status=result.value.data.status
+            console.log("oka = ",result.value.data.jwtToken)
+            if(status==200){
+                console.log("okaasdawd " )
+                this.setState({
+                    Username:'',
+                    Password:'',
+                    StateLogin:[],
+                    stateFatch:false
+                })
+                AsyncStorage.setItem('user',result.value.data.jwtToken)
+                // const data = await AsyncStorage.getItem('user')
+               AsyncStorage.getItem('user', (error, result) => {
+                    if (result) {
+                        this.setState({
+                            login:result
+                        })
+                        console.log("AsyncStorage = ", result )
+                    }else{
+                        console.log("AsyncStorage = Kosong", result )
+                    }
+                })
+                this.props.navigation.navigate('Home') 
+            }else{
+                setTimeout(function(){
+
+                    //Put All Your Code Here, Which You Want To Execute After Some Delay Time.
+                    Alert.alert('Login Failed','Email Or Password Wrong!!!')
+              
+                  }, 500);
+                this.setState({
+                    Username:'',
+                    Password:'',
+                    StateLogin:[],
+                    stateFatch:false
+                })
+                  
+            }
+             
+        })
+        // this.props.dispatch(Userlogin(this.state.userlogin[0]))
+        // .then(result=>console.log(result)) 
+        // .catch(()=>{console.log('xxxxxxxxxxxxxxxxxx')})
+    }
+
+ 
     render(){
         return(
+        // <Loading show={this.state.stateFatch}/>
         <ImageBackground style={style.backgroundImages} source={require('../src/assets/images/bg.png')}>
+        
         <View style={{flex:2, justifyContent:'center',padding:20}}>
+            
             <Image source={require('../src/assets/images/logo.png')} style={{width:250,height:200,alignSelf:'center'}}/>
             <Text style={{alignSelf:'center'}}>WORLD BOOK APPS</Text>
         </View>
@@ -33,16 +101,22 @@ export class Login extends React.Component{
             <View style={{paddingRight:20, paddingLeft:20}}>
             <Item floatingLabel>
                 <Label>Username</Label>
-                <Input />
+                <Input 
+                onChangeText={(e)=>this.setState({Username:e})}
+                value={this.state.Username}/>
             </Item>
+            <Loading show={this.state.stateFatch}/>
             <Item floatingLabel>
                 <Label>Password</Label>
-                <Input secureTextEntry={true}/>
+                <Input 
+                onChangeText={(e)=>this.setState({Password:e})}
+                secureTextEntry={true}
+                value={this.state.Password}/>
             </Item>
 
             </View>
             <View style={{marginTop:20, paddingRight:20, paddingLeft:20}}>
-            <Button style={{justifyContent:'center'}}>
+            <Button style={{justifyContent:'center'}} onPress={this.handleSubmit}>
                 <Text >Log In</Text>
             </Button>
                 <View style={{flexDirection:'row', justifyContent:'center', marginTop:10}}>
@@ -87,6 +161,12 @@ export class Login extends React.Component{
         )
     }
 }
+const mapStateToProps = state =>{
+    return{
+      Userlogin: state.login
+    }
+  }
+  export default connect(mapStateToProps)(Login);
 
 const style=StyleSheet.create({
     container:{

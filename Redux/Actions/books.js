@@ -8,7 +8,7 @@ export const returnItem = (data) => {
 }
 
 export const cekRentItem = (data) => {
-  console.log('response = ',data.id_user);
+  console.log('response = ',data.token);
   return {
     type: 'BACK_ITEM',
     payload: Axios.get ('https://salty-lake-72952.herokuapp.com/api/rent',{
@@ -16,9 +16,17 @@ export const cekRentItem = (data) => {
         id_user:data.id_user
       },
       headers:{
-        token: window.localStorage.getItem('token')
+        token: data.token
       },
     }),
+  };
+  
+};
+
+export const getGenre = () => {
+  return {
+    type: 'GET_GENRE',
+    payload: Axios.get ('https://salty-lake-72952.herokuapp.com/api/genre')
   };
   
 };

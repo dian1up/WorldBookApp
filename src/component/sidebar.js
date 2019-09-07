@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import {NavigationActions} from 'react-navigation';
 import { Text, View, StyleSheet, Image, TouchableOpacity, AsyncStorage } from 'react-native'
-
+import jwt from "react-native-pure-jwt";
 export default class SideBar extends Component {
     state={
         token:'',
@@ -16,25 +16,40 @@ export default class SideBar extends Component {
         this.props.navigation.dispatch(navigateAction);
     })
 
-  render() {
-    let data=''
-    AsyncStorage.getItem('user', (error, result) => {
-        if (result) {
-            this.setState({
-                token:result
-            })
-            console.log("data = ", data )
-        }else{
-            this.setState({
-                token:''
-            })
-            console.log("AsyncStorage1 = Kosong", result )
+    componentDidMount(){
+        let data=''
+        AsyncStorage.getItem('user', (error, result) => {
+            if (result) {
+                this.setState({
+                    token:result
+                })
+                console.log("data = ", data )
+            }else{
+                this.setState({
+                    token:''
+                })
+                console.log("AsyncStorage1 = Kosong", result )
+            }
+        })
+        
+        const {token} = this.state
+        const secret = 'SECRET_KUY'
+        if(token.length>0){
+            jwt
+            .decode(
+                token, // the token
+                secret, // the secret
+                {
+                skipValidation: true // to skip signature and exp verification
+                }
+            )
         }
-    })
-    
+    }
+  render() {
     const {token} = this.state
+
     const url='https://facebook.github.io/react-native/img/tiny_logo.png'
-    console.log('hasil decode = ',token);
+
     return (
         <View style={styles.container}>
           {token.length>0

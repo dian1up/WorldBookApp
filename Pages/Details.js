@@ -1,7 +1,26 @@
 import React from 'react'
-import { ScrollView, Text, View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { AsyncStorage, ScrollView, Text, View, StyleSheet, Image, TouchableOpacity } from "react-native";
 
 export default class Detail extends React.Component{
+    state={
+        token:'',
+    }
+    componentDidMount(){
+        let data=''
+        AsyncStorage.getItem('user', (error, result) => {
+            if (result) {
+                this.setState({
+                    token:result
+                })
+                console.log("data = ", data )
+            }else{
+                this.setState({
+                    token:''
+                })
+                console.log("AsyncStorage1 = Kosong", result )
+            }
+        })
+    }
     render(){
         const { goBack } = this.props.navigation;
         const Param = this.props.navigation.getParam('item');
@@ -29,12 +48,15 @@ export default class Detail extends React.Component{
                     </Text>
                     </ScrollView>
                 </View>
-
+                {Param.status1==1 && this.state.token.length>0
+                ?
                 <View style={style.bodyButton}>
                     <TouchableOpacity style={{backgroundColor:'rgba(0,0,0,0.5)',borderWidth:1,height:50,width:100,borderRadius:50,justifyContent:'center'}}>
                         <Text style={{alignSelf:'center'}}>RENT</Text>
                     </TouchableOpacity>
                 </View>
+                :null
+                }
             </View>
         )
     }

@@ -4,8 +4,10 @@ import {View} from 'react-native'
 import { Register } from "./Pages/Register";
 import  Login  from './Pages/Login';
 import  Home  from './Pages/Home';
+import  History  from './Pages/history';
 import  Details  from './Pages/Details';
 import  Sidebar  from './src/component/sidebar';
+import  Histo  from './src/component/histo';
 import  Card  from './src/component/category';
 import  Books  from './src/component/Books';
 import  Profile  from './Pages/Profile';
@@ -18,12 +20,13 @@ import store from './Redux/store';
 const AppNavigator = createDrawerNavigator({
   // Books: Books,
   Home: Home,
-  Sidebar:Sidebar,
-  Login:  Login,
-  Register: Register,
-  Details:Details,
-  Profile:Profile,
-
+  // Sidebar:Sidebar,
+  // Login:  Login,
+  // Register: Register,
+  // Details:Details,
+  // Profile:Profile,
+  // History:History,
+  // Histo:Histo,
   // Books: Books,
 },{
   contentComponent: Sidebar

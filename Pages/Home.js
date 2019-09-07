@@ -6,7 +6,7 @@ import Books from '../src/component/Books';
 import Loading from '../src/component/LoadingGet';
 import { Button, Input } from 'native-base';
 import {connect} from 'react-redux'; // higher order component HOC
-import {getItem} from '../Redux/Actions/books';
+import {getItem, getGenre} from '../Redux/Actions/books';
 
 class Home extends React.Component{
     static navigationOptions={
@@ -15,8 +15,11 @@ class Home extends React.Component{
     constructor(){
         super()
         this.state={
-            getItem:[],
-            stateFatch:false
+            origin:[],
+            getItems:[],
+            getGenre:[],
+            stateFatch:false,
+            search:''
         }
     }
 
@@ -24,11 +27,55 @@ class Home extends React.Component{
          this.props.dispatch(getItem())
             .then(result => {
                 this.setState({
-                    getItem:result.value.data
-                })})
+                    origin:result.value.data,
+                    getItems:result.value.data
+                })
+                this.props.dispatch(getGenre())
+                .then(result => {
+                    this.setState({
+                        getGenre:result.value.data
+                    })
+                    console.log('data genre ',this.state.getGenre);
+                    
+                })
+            })
+    }
+
+    handleSearch=()=>{
+        let input = this.state.search
+        let newData = this.state.origin.filter(function (params) {
+            key1 = params.description.toLowerCase()
+            key2 = params.title.toLowerCase()
+            input =  input.toLowerCase()
+            hasil1 = key1.includes(input) 
+            hasil2 = key2.includes(input) 
+            hasil = hasil1+hasil2
+            return hasil
+        })
+        console.log('search = ', newData);
+        this.setState({
+            getItems:newData
+        })
+    }
+
+    handleGenre=(e)=>{
+        console.log('cok',e);
+        let newData = this.state.origin.filter(function(params) {
+            return params.genre1 == e.tag
+        })
+        console.log('cok hoi = ',newData);
+        this.setState({
+            getItems:newData
+        })
+        console.log('ccccccccccccc = ',this.state.getItems);
     }
     render(){
-        const {getItem} = this.state
+        const {origin} = this.state
+        const {getItems} = this.state
+        console.log('aaaaaaaaaaaa = ',getItems);
+        
+        let getItem = getItems
+        const {getGenre} = this.state
         console.log('adwawdawdaw ',getItem);
         const data =['https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500','https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80']
         return(
@@ -39,8 +86,11 @@ class Home extends React.Component{
                 </Button>
                 
                 <View style={{padding:1 ,justifyContent:'center', alignItems:'center',flexDirection:'row', borderStyle:'solid', borderWidth:1, maxHeight:50, maxWidth:200, borderRadius:50}}>
-                    <TextInput placeholder='Search' style={{height:'100%', width:'80%', borderRadius:50}}/>
-                    <Button transparent>
+                    <TextInput 
+                    onChangeText={(e)=>{this.setState({search:e})}}
+                    placeholder='Search' 
+                    style={{height:'100%', width:'80%', borderRadius:50}}/>
+                    <Button transparent onPress={this.handleSearch}>
                         <Image style={{width:30, height:30}} source={require('../src/assets/images/search.png')}/>
                     </Button>        
                 </View>
@@ -48,24 +98,29 @@ class Home extends React.Component{
                 <Image source={require('../src/assets/images/logo.png')} style={style.iconMenu2} />   
             </View>
             
-            {getItem.length>0
+            {getGenre.length>0
             ?
             <View style={{flexShrink:10, backgroundColor:'white'}}>
             <ScrollView>
             <ScrollView horizontal style={{padding:10}}>
-                {getItem.map((value,index)=>{
+                {getGenre.map((value,index)=>{
                     return(
-                        <Categori title={value.title} url={value.image} key={index}/>
-                    )
+                        <TouchableOpacity key={index} onPress={()=>this.handleGenre(value)}>
+                            <Categori data={value} />
+                        </TouchableOpacity>
+                    )   
                 })}
                 
             </ScrollView>
             <Text style={{fontSize:20, fontWeight:'bold', marginHorizontal:10}}>POPULER BOOKS</Text>
             <ScrollView horizontal style={{padding:10}}>
-                {getItem.map((value,index)=>{
+                {origin.map((value,index)=>{
                     return(
-                        <Books status={value} key={index}/>
-                        //<Card title={value.title} url={value.image} key={index}/>
+                        <TouchableOpacity onPress={()=>this.props.navigation.navigate('Details' ,{
+                            item:value
+                        })}>
+                            <Books status={value} key={index}/>
+                        </TouchableOpacity>
                     )
                 })}
                 

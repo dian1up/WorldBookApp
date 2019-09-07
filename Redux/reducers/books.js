@@ -28,6 +28,26 @@ const books = (state = initialState, action) => {
         isFulfilled: true,
         Books: action.payload.data,
       };
+      case 'GET_GENRE_PENDING':
+        return {
+          ...state,
+          isLoading: true,
+          isFulfilled: false,
+          isRejected: false,
+        };
+      case 'GET_GENRE_REJECTED':
+        return {
+          ...state,
+          isLoading: false,
+          isRejected: true,
+        };
+      case 'GET_GENRE_FULFILLED':
+        return {
+          ...state,
+          isLoading: false,
+          isFulfilled: true,
+          Books: action.payload.data,
+        };
       case 'POST_ITEM_PENDING':
         return {
           ...state,
@@ -126,7 +146,7 @@ const books = (state = initialState, action) => {
                   ...state,
                   isLoading: false,
                   isFulfilled: true,
-                  Books: action.payload.data,
+                  Borrow: action.payload.data,
                 };
                 case 'RETURN_ITEM_PENDING':
                   return {

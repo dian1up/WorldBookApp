@@ -1,8 +1,57 @@
 import React from 'react'
-import { View, StyleSheet, Image, Text } from 'react-native';
-
-export default class Profile extends React.Component{
+import { View, StyleSheet, Image, Text, AsyncStorage } from 'react-native';
+import {connect} from 'react-redux'; // higher order component HOC
+import jwt from "react-native-pure-jwt";
+class Profile extends React.Component{
+    state={
+        token:'',
+        jwt:[],
+        name:'',
+    }
+    componentDidMount(){
+        AsyncStorage.getItem('user', (error, result) => {
+            if (result) {
+                this.setState({
+                    token:result
+                })
+                console.log("data22 = ", this.state.token )
+            }else{
+                this.setState({
+                    token:''
+                })
+                console.log("AsyncStorage1 = Kosong", result )
+            }
+        })
+    }
     render(){
+
+        const {token} = this.state
+        const secret = 'SECRET_KUY'
+        const {user} = this.props
+        console.log('data token = ',token);
+        if(token.length>0){
+            jwt
+            .decode(
+                token, // the token
+                secret, // the secret
+                {
+                skipValidation: true // to skip signature and exp verification
+                }
+            )
+            .then(result=>{
+                let dt=result.payload.name
+                let txt = dt.toUpperCase()
+                this.setState({
+                    jwt:result.payload,
+                    name:txt
+                })
+                console.log('hasil baca = ',result.payload);
+            }) // already an object. read below, exp key note
+            .catch(console.error);
+        }
+        
+
+
         return(
             <View style={style.container}>
                 <View style={style.contanHead}>
@@ -15,10 +64,9 @@ export default class Profile extends React.Component{
                 </View>
                 <View style={{height:'100%',width:'100%',position:'absolute',justifyContent:'center',zIndex:1}}>
                     <View style={{alignSelf:'center', borderWidth:1,borderStyle:'solid',height:'55%',width:'40%',borderRadius:100,shadowOpacity:100, marginBottom:20}}>
-                        <Image source={{uri:'https://cdn0-production-images-kly.akamaized.net/2Sr4_IgZ4EVApX_JbCljXD_ympY=/640x360/smart/filters:quality(75):strip_icc():format(jpeg)/kly-media-production/medias/2714564/original/034635400_1548654389-Dx95B_oUUAANtWV.jpg'}} style={{borderRadius:100,resizeMode:'cover',width:'100%',height:'100%',shadowColor:'red',shadowRadius:100,shadowOpacity:100}}/>
-                        
+                        <Image source={{uri:this.state.jwt.image}} style={{borderRadius:100,resizeMode:'cover',width:'100%',height:'100%',shadowColor:'red',shadowRadius:100,shadowOpacity:100}}/> 
                     </View>
-                    <Text style={{alignSelf:'center', fontSize:22,}}>RADIN DIAN ZETA</Text>
+                    <Text style={{alignSelf:'center', fontSize:22,}}>{this.state.name}</Text>
                 </View>
                 </View>
                     {/* <Image source={require('../src/assets/images/head2.png')}/> */}
@@ -29,7 +77,7 @@ export default class Profile extends React.Component{
                             <Text style={{alignSelf:'center', marginLeft:10, fontWeight:'bold', fontSize:22}}>Email</Text>
                         </View>
                         <View style={{alignSelf:'center'}}>
-                            <Text>awdwad</Text>
+                            <Text>{this.state.jwt.email}</Text>
                         </View>
                     </View>
 
@@ -39,7 +87,7 @@ export default class Profile extends React.Component{
                             <Text style={{alignSelf:'center', marginLeft:10, fontWeight:'bold', fontSize:22}}>Donate</Text>
                         </View>
                         <View style={{alignSelf:'center'}}>
-                            <Text>awdwad</Text>
+                            <Text>0</Text>
                         </View>
                     </View>
 
@@ -49,6 +97,12 @@ export default class Profile extends React.Component{
         )
     }
 }
+const mapStateToProps = state =>{
+    return{
+      Userlogin: state.login
+    }
+  }
+export default connect(mapStateToProps)(Profile);
 
 const style=StyleSheet.create({
     container:{
